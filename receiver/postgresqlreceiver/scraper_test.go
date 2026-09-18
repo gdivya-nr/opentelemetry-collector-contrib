@@ -26,7 +26,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/tj/assert"
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/component/componenttest"
 	"go.opentelemetry.io/collector/config/confignet"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
@@ -1858,27 +1857,22 @@ func TestExplainQueryUsesContext(t *testing.T) {
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
-func TestStart_VersionDetectionSuccess(t *testing.T) {
+func TestScrape_VersionDetectionSuccess(t *testing.T) {
 	factory := new(mockClientFactory)
-	versionClient := new(mockClient)
-	versionClient.On("Close").Return(nil)
-	versionClient.On("getVersion").Return("14.5", nil)
-	factory.On("getClient", mock.Anything, defaultPostgreSQLDatabase).Return(versionClient, nil)
+	factory.initMocks([]string{"otel"})
 
 	cfg := createDefaultConfig().(*Config)
 	scraper, err := newPostgreSQLScraper(receivertest.NewNopSettings(metadata.Type), cfg, factory, newCache(1), newTTLCache[string](1, time.Second))
 	require.NoError(t, err)
 
-	require.NoError(t, scraper.start(t.Context(), componenttest.NewNopHost()))
+	_, err = scraper.scrape(t.Context())
+	require.NoError(t, err)
 	assert.Equal(t, "14.5", scraper.dbVersion)
-	factory.AssertExpectations(t)
-	versionClient.AssertExpectations(t)
 }
 
-func TestStart_VersionDetectionConnectFailure(t *testing.T) {
+func TestScrape_VersionDetectionQueryFailure(t *testing.T) {
 	factory := new(mockClientFactory)
-	factory.On("getClient", mock.Anything, defaultPostgreSQLDatabase).
-		Return((*mockClient)(nil), errors.New("connection refused"))
+	factory.initMocksWithVersion([]string{"otel"}, "", errors.New("query failed"))
 
 	cfg := createDefaultConfig().(*Config)
 	core, logs := observer.New(zapcore.WarnLevel)
@@ -1887,30 +1881,10 @@ func TestStart_VersionDetectionConnectFailure(t *testing.T) {
 	scraper, err := newPostgreSQLScraper(settings, cfg, factory, newCache(1), newTTLCache[string](1, time.Second))
 	require.NoError(t, err)
 
-	require.NoError(t, scraper.start(t.Context(), componenttest.NewNopHost()))
-	assert.Equal(t, "", scraper.dbVersion)
-	assert.Equal(t, 1, logs.FilterMessage("postgresqlreceiver: failed to connect for version detection; db.system.version attribute will not be set").Len())
-}
-
-func TestStart_VersionDetectionQueryFailure(t *testing.T) {
-	factory := new(mockClientFactory)
-	versionClient := new(mockClient)
-	versionClient.On("Close").Return(nil)
-	versionClient.On("getVersion").Return("", errors.New("query failed"))
-	factory.On("getClient", mock.Anything, defaultPostgreSQLDatabase).Return(versionClient, nil)
-
-	cfg := createDefaultConfig().(*Config)
-	core, logs := observer.New(zapcore.WarnLevel)
-	settings := receivertest.NewNopSettings(metadata.Type)
-	settings.Logger = zap.New(core)
-	scraper, err := newPostgreSQLScraper(settings, cfg, factory, newCache(1), newTTLCache[string](1, time.Second))
+	_, err = scraper.scrape(t.Context())
 	require.NoError(t, err)
-
-	require.NoError(t, scraper.start(t.Context(), componenttest.NewNopHost()))
-	assert.Equal(t, "", scraper.dbVersion)
-	assert.Equal(t, 1, logs.FilterMessage("postgresqlreceiver: failed to detect PostgreSQL version; db.system.version attribute will not be set").Len())
-	factory.AssertExpectations(t)
-	versionClient.AssertExpectations(t)
+	assert.Empty(t, scraper.dbVersion)
+	assert.Equal(t, 1, logs.FilterMessage("failed to detect PostgreSQL version; db.system.version will not be set").Len())
 }
 
 type (
@@ -2085,8 +2059,13 @@ func (m *mockClientFactory) close() error {
 func (*mockClientFactory) setCredentialProvider(dbauth.Provider) {}
 
 func (m *mockClientFactory) initMocks(databases []string) {
+	m.initMocksWithVersion(databases, "14.5", nil)
+}
+
+func (m *mockClientFactory) initMocksWithVersion(databases []string, version string, versionErr error) {
 	listClient := new(mockClient)
 	listClient.initMocks(defaultPostgreSQLDatabase, "public", databases, 0)
+	listClient.On("getVersion").Return(version, versionErr)
 	m.On("getClient", mock.Anything, defaultPostgreSQLDatabase).Return(listClient, nil)
 
 	for index, db := range databases {

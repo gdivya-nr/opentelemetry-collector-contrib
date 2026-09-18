@@ -39,7 +39,8 @@ const (
 	readmeURL                 = "https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.88.0/receiver/postgresqlreceiver/README.md"
 	defaultPostgreSQLDatabase = "postgres"
 
-	defaultServiceName = "unknown_service:postgresql"
+	defaultServiceName  = "unknown_service:postgresql"
+	versionQueryTimeout = 5 * time.Second
 )
 
 // otelNamespaceUUID is the official OTel namespace UUID for deterministic UUID v5 generation,
@@ -220,6 +221,16 @@ func (p *postgreSQLScraper) scrape(ctx context.Context) (pmetric.Metrics, error)
 		return pmetric.NewMetrics(), err
 	}
 	defer listClient.Close()
+
+	if p.dbVersion == "" {
+		vctx, cancel := context.WithTimeout(ctx, versionQueryTimeout)
+		if v, vErr := listClient.getVersion(vctx); vErr != nil {
+			p.logger.Warn("failed to detect PostgreSQL version; db.system.version will not be set", zap.Error(vErr))
+		} else {
+			p.dbVersion = v
+		}
+		cancel()
+	}
 
 	if len(databases) == 0 {
 		dbList, dbErr := listClient.listDatabases(ctx)
@@ -558,9 +569,8 @@ func (p *postgreSQLScraper) collectTopQuery(ctx context.Context, clientFactory p
 
 // start resolves the credential provider (if a db_auth block is configured)
 // from the host extension map — only available now, at Start — and injects
-// it into the client factory. It also detects the server version once at
-// startup so it can be stamped on every emitted resource as db.system.version.
-func (p *postgreSQLScraper) start(ctx context.Context, host component.Host) error {
+// it into the client factory.
+func (p *postgreSQLScraper) start(_ context.Context, host component.Host) error {
 	provider, err := p.config.resolveCredentialProvider(host.GetExtensions())
 	if err != nil {
 		return err
@@ -568,20 +578,6 @@ func (p *postgreSQLScraper) start(ctx context.Context, host component.Host) erro
 	if provider != nil {
 		p.clientFactory.setCredentialProvider(provider)
 	}
-
-	vctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	if c, err := p.clientFactory.getClient(vctx, defaultPostgreSQLDatabase); err != nil {
-		p.logger.Warn("postgresqlreceiver: failed to connect for version detection; db.system.version attribute will not be set", zap.Error(err))
-	} else {
-		defer c.Close()
-		if v, err := c.getVersion(vctx); err != nil {
-			p.logger.Warn("postgresqlreceiver: failed to detect PostgreSQL version; db.system.version attribute will not be set", zap.Error(err))
-		} else {
-			p.dbVersion = v
-		}
-	}
-
 	return nil
 }
 
