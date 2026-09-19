@@ -224,12 +224,12 @@ func (p *postgreSQLScraper) scrape(ctx context.Context) (pmetric.Metrics, error)
 
 	if p.dbVersion == "" {
 		vctx, cancel := context.WithTimeout(ctx, versionQueryTimeout)
+		defer cancel()
 		if v, vErr := listClient.getVersion(vctx); vErr != nil {
-			p.logger.Warn("failed to detect PostgreSQL version; db.system.version will not be set", zap.Error(vErr))
+			p.logger.Warn("failed to detect PostgreSQL version. db.system.version will not be set", zap.Error(vErr))
 		} else {
 			p.dbVersion = v
 		}
-		cancel()
 	}
 
 	if len(databases) == 0 {

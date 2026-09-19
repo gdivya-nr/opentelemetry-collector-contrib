@@ -1884,7 +1884,48 @@ func TestScrape_VersionDetectionQueryFailure(t *testing.T) {
 	_, err = scraper.scrape(t.Context())
 	require.NoError(t, err)
 	assert.Empty(t, scraper.dbVersion)
-	assert.Equal(t, 1, logs.FilterMessage("failed to detect PostgreSQL version; db.system.version will not be set").Len())
+	assert.Equal(t, 1, logs.FilterMessage("failed to detect PostgreSQL version. db.system.version will not be set").Len())
+}
+
+func TestSetServerResourceAttributes_VersionEmittedWhenEnabled(t *testing.T) {
+	cfg := createDefaultConfig().(*Config)
+	cfg.MetricsBuilderConfig.ResourceAttributes.DbSystemVersion.Enabled = true
+	scraper := &postgreSQLScraper{
+		logger:            zap.NewNop(),
+		config:            cfg,
+		mb:                metadata.NewMetricsBuilder(cfg.MetricsBuilderConfig, receivertest.NewNopSettings(metadata.Type)),
+		serviceInstanceID: "localhost:5432",
+		serverEndpoint:    newServerEndpoint(cfg, zap.NewNop()),
+		dbVersion:         "14.5",
+	}
+
+	rb := scraper.mb.NewResourceBuilder()
+	scraper.setServerResourceAttributes(rb)
+	res := rb.Emit()
+
+	v, ok := res.Attributes().Get("db.system.version")
+	require.True(t, ok)
+	assert.Equal(t, "14.5", v.Str())
+}
+
+func TestSetServerResourceAttributes_EmptyVersionOmitsAttribute(t *testing.T) {
+	cfg := createDefaultConfig().(*Config)
+	cfg.MetricsBuilderConfig.ResourceAttributes.DbSystemVersion.Enabled = true
+	scraper := &postgreSQLScraper{
+		logger:            zap.NewNop(),
+		config:            cfg,
+		mb:                metadata.NewMetricsBuilder(cfg.MetricsBuilderConfig, receivertest.NewNopSettings(metadata.Type)),
+		serviceInstanceID: "localhost:5432",
+		serverEndpoint:    newServerEndpoint(cfg, zap.NewNop()),
+		dbVersion:         "",
+	}
+
+	rb := scraper.mb.NewResourceBuilder()
+	scraper.setServerResourceAttributes(rb)
+	res := rb.Emit()
+
+	_, ok := res.Attributes().Get("db.system.version")
+	assert.False(t, ok)
 }
 
 type (
