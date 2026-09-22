@@ -4,7 +4,6 @@ package metadata
 
 import (
 	"context"
-
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/filter"
 	"go.opentelemetry.io/collector/pdata/pcommon"
@@ -138,6 +137,12 @@ func NewLogsBuilder(lbc LogsBuilderConfig, settings receiver.Settings) *LogsBuil
 		eventDbServerTopQuery:          newEventDbServerTopQuery(lbc.Events.DbServerTopQuery),
 		resourceAttributeIncludeFilter: make(map[string]filter.Filter),
 		resourceAttributeExcludeFilter: make(map[string]filter.Filter),
+	}
+	if lbc.ResourceAttributes.DbSystemEdition.EventsInclude != nil {
+		lb.resourceAttributeIncludeFilter["db.system.edition"] = filter.CreateFilter(lbc.ResourceAttributes.DbSystemEdition.EventsInclude)
+	}
+	if lbc.ResourceAttributes.DbSystemEdition.EventsExclude != nil {
+		lb.resourceAttributeExcludeFilter["db.system.edition"] = filter.CreateFilter(lbc.ResourceAttributes.DbSystemEdition.EventsExclude)
 	}
 	if lbc.ResourceAttributes.DbSystemName.EventsInclude != nil {
 		lb.resourceAttributeIncludeFilter["db.system.name"] = filter.CreateFilter(lbc.ResourceAttributes.DbSystemName.EventsInclude)

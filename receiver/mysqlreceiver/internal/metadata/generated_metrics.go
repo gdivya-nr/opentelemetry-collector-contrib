@@ -4,15 +4,14 @@ package metadata
 
 import (
 	"fmt"
-	"slices"
-	"strconv"
-	"time"
-
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/filter"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/receiver"
+	"slices"
+	"strconv"
+	"time"
 )
 
 const (
@@ -7046,6 +7045,12 @@ func NewMetricsBuilder(mbc MetricsBuilderConfig, settings receiver.Settings, opt
 		metricMysqlUptime:                             newMetricMysqlUptime(mbc.Metrics.MysqlUptime),
 		resourceAttributeIncludeFilter:                make(map[string]filter.Filter),
 		resourceAttributeExcludeFilter:                make(map[string]filter.Filter),
+	}
+	if mbc.ResourceAttributes.DbSystemEdition.MetricsInclude != nil {
+		mb.resourceAttributeIncludeFilter["db.system.edition"] = filter.CreateFilter(mbc.ResourceAttributes.DbSystemEdition.MetricsInclude)
+	}
+	if mbc.ResourceAttributes.DbSystemEdition.MetricsExclude != nil {
+		mb.resourceAttributeExcludeFilter["db.system.edition"] = filter.CreateFilter(mbc.ResourceAttributes.DbSystemEdition.MetricsExclude)
 	}
 	if mbc.ResourceAttributes.DbSystemName.MetricsInclude != nil {
 		mb.resourceAttributeIncludeFilter["db.system.name"] = filter.CreateFilter(mbc.ResourceAttributes.DbSystemName.MetricsInclude)

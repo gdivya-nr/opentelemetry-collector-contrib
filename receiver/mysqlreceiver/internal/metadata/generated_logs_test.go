@@ -4,9 +4,6 @@ package metadata
 
 import (
 	"context"
-	"testing"
-	"time"
-
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/plog"
@@ -14,6 +11,8 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
+	"testing"
+	"time"
 )
 
 type eventsTestDataSet int
@@ -31,6 +30,7 @@ func TestLogsBuilderAppendLogRecord(t *testing.T) {
 	lb := NewLogsBuilder(loadLogsBuilderConfig(t, "all_set"), settings)
 
 	rb := lb.NewResourceBuilder()
+	rb.SetDbSystemEdition("db.system.edition-val")
 	rb.SetDbSystemName("db.system.name-val")
 	rb.SetDbSystemVersion("db.system.version-val")
 	rb.SetMysqlInstanceEndpoint("mysql.instance.endpoint-val")
@@ -140,6 +140,7 @@ func TestLogsBuilder(t *testing.T) {
 			lb.RecordDbServerTopQueryEvent(ctx, timestamp, AttributeDbSystemNameMysql, "db.query.text-val", "mysql.query_plan-val", "mysql.query_plan.hash-val", "mysql.events_statements_summary_by_digest.digest-val", 52, 56.100000)
 
 			rb := lb.NewResourceBuilder()
+			rb.SetDbSystemEdition("db.system.edition-val")
 			rb.SetDbSystemName("db.system.name-val")
 			rb.SetDbSystemVersion("db.system.version-val")
 			rb.SetMysqlInstanceEndpoint("mysql.instance.endpoint-val")
