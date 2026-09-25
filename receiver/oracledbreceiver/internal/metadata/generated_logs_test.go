@@ -32,6 +32,7 @@ func TestLogsBuilderAppendLogRecord(t *testing.T) {
 
 	rb := lb.NewResourceBuilder()
 	rb.SetHostName("host.name-val")
+	rb.SetOracleDbEdition("oracle.db.edition-val")
 	rb.SetOracleDbHostingType("oracle.db.hosting_type-val")
 	rb.SetOracleDbOpenMode("oracle.db.open_mode-val")
 	rb.SetOracleDbRole("oracle.db.role-val")
@@ -152,6 +153,7 @@ func TestLogsBuilder(t *testing.T) {
 
 			rb := lb.NewResourceBuilder()
 			rb.SetHostName("host.name-val")
+			rb.SetOracleDbEdition("oracle.db.edition-val")
 			rb.SetOracleDbHostingType("oracle.db.hosting_type-val")
 			rb.SetOracleDbOpenMode("oracle.db.open_mode-val")
 			rb.SetOracleDbRole("oracle.db.role-val")
