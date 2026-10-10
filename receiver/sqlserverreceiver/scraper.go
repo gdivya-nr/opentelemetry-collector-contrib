@@ -2796,6 +2796,7 @@ func (s *sqlServerScraperHelper) recordDatabaseTopProcedure(ctx context.Context)
 		colMinElapsedTime   = "min_elapsed_time"
 		colMaxElapsedTime   = "max_elapsed_time"
 		colLastExecTime     = "last_execution_time"
+		colDefinition       = "definition"
 
 		dbSystemNameVal = "microsoft.sql_server"
 	)
@@ -2919,6 +2920,19 @@ func (s *sqlServerScraperHelper) recordDatabaseTopProcedure(ctx context.Context)
 			float64(minElapsedTime.(int64))/1_000_000,
 			row[colLastExecTime],
 		)
+
+		if s.config.LogsBuilderConfig.Events.DbServerProcedureDefinition.Enabled {
+			s.lb.RecordDbServerProcedureDefinitionEvent(
+				context.Background(),
+				timestamp,
+				dbSystemNameVal,
+				row[colDatabaseName],
+				procedureID,
+				row[colProcedureName],
+				row[colSchemaName],
+				row[colDefinition],
+			)
+		}
 	}
 
 	if !resourcesAdded {

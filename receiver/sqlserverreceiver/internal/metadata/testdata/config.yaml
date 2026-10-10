@@ -235,6 +235,8 @@ all_set:
     sqlserver.worktable.cache.hit_ratio:
       enabled: true
   events:
+    db.server.procedure_definition:
+      enabled: true
     db.server.query_plan:
       enabled: true
     db.server.query_sample:
@@ -500,6 +502,8 @@ reaggregate_set:
     sqlserver.worktable.cache.hit_ratio:
       enabled: true
   events:
+    db.server.procedure_definition:
+      enabled: true
     db.server.query_plan:
       enabled: true
     db.server.query_sample:
@@ -765,6 +769,8 @@ none_set:
     sqlserver.worktable.cache.hit_ratio:
       enabled: false
   events:
+    db.server.procedure_definition:
+      enabled: false
     db.server.query_plan:
       enabled: false
     db.server.query_sample:
