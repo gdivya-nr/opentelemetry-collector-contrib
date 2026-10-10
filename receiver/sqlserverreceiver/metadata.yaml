@@ -496,7 +496,6 @@ events:
       - db.namespace
       - sqlserver.procedure_id
       - sqlserver.procedure_name
-      - sqlserver.schema.name
       - sqlserver.procedure.definition
 
   db.server.query_plan:

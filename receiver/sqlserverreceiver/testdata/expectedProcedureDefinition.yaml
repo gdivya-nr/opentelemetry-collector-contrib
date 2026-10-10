@@ -40,15 +40,12 @@ resourceLogs:
               - key: sqlserver.procedure_name
                 value:
                   stringValue: '[dbo].[usp_GetOrderDetails]'
-              - key: sqlserver.schema.name
-                value:
-                  stringValue: dbo
               - key: sqlserver.procedure.definition
                 value:
                   stringValue: CREATE PROCEDURE [dbo].[usp_GetOrderDetails] AS BEGIN SELECT * FROM Orders END
             body: {}
             eventName: db.server.procedure_definition
-            timeUnixNano: "1791627760202583000"
+            timeUnixNano: "1791633893219426000"
           - attributes:
               - key: db.system.name
                 value:
@@ -62,15 +59,12 @@ resourceLogs:
               - key: sqlserver.procedure_name
                 value:
                   stringValue: '[sales].[usp_UpdateInventory]'
-              - key: sqlserver.schema.name
-                value:
-                  stringValue: sales
               - key: sqlserver.procedure.definition
                 value:
                   stringValue: CREATE PROCEDURE [sales].[usp_UpdateInventory] AS BEGIN UPDATE Inventory SET quantity = quantity - 1 END
             body: {}
             eventName: db.server.procedure_definition
-            timeUnixNano: "1791627760202583000"
+            timeUnixNano: "1791633893219426000"
           - attributes:
               - key: db.system.name
                 value:
@@ -119,7 +113,7 @@ resourceLogs:
                   stringValue: "2026-09-08T10:15:30.0000000+00:00"
             body: {}
             eventName: db.server.top_procedure
-            timeUnixNano: "1791627760202583000"
+            timeUnixNano: "1791633893219426000"
           - attributes:
               - key: db.system.name
                 value:
@@ -168,7 +162,7 @@ resourceLogs:
                   stringValue: "2026-09-08T10:15:31.0000000+00:00"
             body: {}
             eventName: db.server.top_procedure
-            timeUnixNano: "1791627760202583000"
+            timeUnixNano: "1791633893219426000"
         scope:
           name: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/sqlserverreceiver
           version: latest

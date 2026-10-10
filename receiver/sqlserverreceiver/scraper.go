@@ -2929,7 +2929,6 @@ func (s *sqlServerScraperHelper) recordDatabaseTopProcedure(ctx context.Context)
 				row[colDatabaseName],
 				procedureID,
 				row[colProcedureName],
-				row[colSchemaName],
 				row[colDefinition],
 			)
 		}

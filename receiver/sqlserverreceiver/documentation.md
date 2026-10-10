@@ -1265,7 +1265,6 @@ The SQL source text of stored procedures observed in db.server.top_procedure. Co
 | db.namespace | The database name. | Any Str | - |
 | sqlserver.procedure_id | The SQL Server ID of the stored procedure, if any | Any Str | - |
 | sqlserver.procedure_name | The name of the stored procedure, if any | Any Str | - |
-| sqlserver.schema.name | The name of the database schema. | Any Str | - |
 | sqlserver.procedure.definition | The SQL source text of the stored procedure as returned by OBJECT_DEFINITION(). Empty string when the caller lacks VIEW DEFINITION permission or the definition is not available. | Any Str | - |
 
 ### db.server.query_plan

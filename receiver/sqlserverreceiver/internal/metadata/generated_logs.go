@@ -18,7 +18,7 @@ type eventDbServerProcedureDefinition struct {
 	config EventConfig         // event config provided by user.
 }
 
-func (e *eventDbServerProcedureDefinition) recordEvent(ctx context.Context, timestamp pcommon.Timestamp, dbSystemNameAttributeValue string, dbNamespaceAttributeValue string, sqlserverProcedureIDAttributeValue string, sqlserverProcedureNameAttributeValue string, sqlserverSchemaNameAttributeValue string, sqlserverProcedureDefinitionAttributeValue string) {
+func (e *eventDbServerProcedureDefinition) recordEvent(ctx context.Context, timestamp pcommon.Timestamp, dbSystemNameAttributeValue string, dbNamespaceAttributeValue string, sqlserverProcedureIDAttributeValue string, sqlserverProcedureNameAttributeValue string, sqlserverProcedureDefinitionAttributeValue string) {
 	if !e.config.Enabled {
 		return
 	}
@@ -34,7 +34,6 @@ func (e *eventDbServerProcedureDefinition) recordEvent(ctx context.Context, time
 	dp.Attributes().PutStr("db.namespace", dbNamespaceAttributeValue)
 	dp.Attributes().PutStr("sqlserver.procedure_id", sqlserverProcedureIDAttributeValue)
 	dp.Attributes().PutStr("sqlserver.procedure_name", sqlserverProcedureNameAttributeValue)
-	dp.Attributes().PutStr("sqlserver.schema.name", sqlserverSchemaNameAttributeValue)
 	dp.Attributes().PutStr("sqlserver.procedure.definition", sqlserverProcedureDefinitionAttributeValue)
 
 }
@@ -454,8 +453,8 @@ func (lb *LogsBuilder) Emit(options ...ResourceLogsOption) plog.Logs {
 }
 
 // RecordDbServerProcedureDefinitionEvent adds a log record of db.server.procedure_definition event.
-func (lb *LogsBuilder) RecordDbServerProcedureDefinitionEvent(ctx context.Context, timestamp pcommon.Timestamp, dbSystemNameAttributeValue string, dbNamespaceAttributeValue string, sqlserverProcedureIDAttributeValue string, sqlserverProcedureNameAttributeValue string, sqlserverSchemaNameAttributeValue string, sqlserverProcedureDefinitionAttributeValue string) {
-	lb.eventDbServerProcedureDefinition.recordEvent(ctx, timestamp, dbSystemNameAttributeValue, dbNamespaceAttributeValue, sqlserverProcedureIDAttributeValue, sqlserverProcedureNameAttributeValue, sqlserverSchemaNameAttributeValue, sqlserverProcedureDefinitionAttributeValue)
+func (lb *LogsBuilder) RecordDbServerProcedureDefinitionEvent(ctx context.Context, timestamp pcommon.Timestamp, dbSystemNameAttributeValue string, dbNamespaceAttributeValue string, sqlserverProcedureIDAttributeValue string, sqlserverProcedureNameAttributeValue string, sqlserverProcedureDefinitionAttributeValue string) {
+	lb.eventDbServerProcedureDefinition.recordEvent(ctx, timestamp, dbSystemNameAttributeValue, dbNamespaceAttributeValue, sqlserverProcedureIDAttributeValue, sqlserverProcedureNameAttributeValue, sqlserverProcedureDefinitionAttributeValue)
 }
 
 // RecordDbServerQueryPlanEvent adds a log record of db.server.query_plan event.

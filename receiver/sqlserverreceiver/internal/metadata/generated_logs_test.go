@@ -138,7 +138,7 @@ func TestLogsBuilder(t *testing.T) {
 			allEventsCount := 0
 
 			allEventsCount++
-			lb.RecordDbServerProcedureDefinitionEvent(ctx, timestamp, "db.system.name-val", "db.namespace-val", "sqlserver.procedure_id-val", "sqlserver.procedure_name-val", "sqlserver.schema.name-val", "sqlserver.procedure.definition-val")
+			lb.RecordDbServerProcedureDefinitionEvent(ctx, timestamp, "db.system.name-val", "db.namespace-val", "sqlserver.procedure_id-val", "sqlserver.procedure_name-val", "sqlserver.procedure.definition-val")
 
 			allEventsCount++
 			lb.RecordDbServerQueryPlanEvent(ctx, timestamp, "db.namespace-val", "db.system.name-val", "sqlserver.query_hash-val", "sqlserver.query_plan-val", "sqlserver.query_plan_hash-val")
@@ -204,9 +204,6 @@ func TestLogsBuilder(t *testing.T) {
 					attrVal, ok = lr.Attributes().Get("sqlserver.procedure_name")
 					assert.True(t, ok)
 					assert.Equal(t, "sqlserver.procedure_name-val", attrVal.Str())
-					attrVal, ok = lr.Attributes().Get("sqlserver.schema.name")
-					assert.True(t, ok)
-					assert.Equal(t, "sqlserver.schema.name-val", attrVal.Str())
 					attrVal, ok = lr.Attributes().Get("sqlserver.procedure.definition")
 					assert.True(t, ok)
 					assert.Equal(t, "sqlserver.procedure.definition-val", attrVal.Str())
