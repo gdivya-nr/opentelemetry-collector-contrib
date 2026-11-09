@@ -366,6 +366,7 @@ type querySample struct {
 	waitEvent          string
 	waitEventType      string
 	waitTime           float64
+	waitStartTime      string
 	statementTimerWait float64
 	traceparent        string
 	// clientName is the client driver's self-reported identity
@@ -1155,6 +1156,8 @@ func (c *mySQLClient) getQuerySamples(limit uint64, supportsProcesslist bool) ([
 				dest = append(dest, &s.waitEvent)
 			case "wait_time_seconds":
 				dest = append(dest, &s.waitTime)
+			case "wait_start_time":
+				dest = append(dest, &s.waitStartTime)
 			case "statement_timer_wait_seconds":
 				dest = append(dest, &s.statementTimerWait)
 			case "traceparent":

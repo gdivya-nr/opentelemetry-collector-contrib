@@ -100,6 +100,18 @@
 
         0
     ) AS wait_time_seconds,
+    CASE WHEN wait.thread_id IS NOT NULL AND wait.end_event_id IS NULL
+        THEN DATE_FORMAT(
+            DATE_ADD(
+                '1970-01-01 00:00:00',
+                INTERVAL FLOOR(
+                    (UNIX_TIMESTAMP(UTC_TIMESTAMP(6)) - COALESCE(wait.timer_wait/1e12, CAST(thread.processlist_time AS DECIMAL(20,6)), 0)) / 2
+                ) * 2 SECOND
+            ),
+            '%Y-%m-%dT%H:%i:%SZ'
+        )
+        ELSE ''
+    END AS wait_start_time,
     COALESCE(statement.TIMER_WAIT/1e12, thread.processlist_time, 0) AS statement_timer_wait_seconds,
     -- Extension: Get @traceparent from user_variables_by_thread.
     -- This table is available on MySQL 5.7.3+ and MariaDB 10.5.2+.

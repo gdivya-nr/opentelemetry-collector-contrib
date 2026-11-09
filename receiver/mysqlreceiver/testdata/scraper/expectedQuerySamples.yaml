@@ -70,6 +70,9 @@ resourceLogs:
               - key: mysql.events_waits_current.timer_wait
                 value:
                   doubleValue: 1.2851652e-05
+              - key: mysql.wait.start_time
+                value:
+                  stringValue: ""
               - key: client.address
                 value:
                   stringValue: 192.168.1.80
